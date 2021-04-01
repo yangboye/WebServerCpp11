@@ -9,7 +9,9 @@ include_directories(${INC_DIR})
 link_directories(${LINK_DIR})
 link_libraries(mysqlclient)
 
-AUX_SOURCE_DIRECTORY(./src DIR_SRCS)
-add_executable(WebServerCpp11 ${DIR_SRCS} test/hash_table.h test/test_my_db.cpp test/test_my_db.h)
+find_package(Threads REQUIRED)
+
+add_executable(WebServerCpp11 src/main.cpp src/timer/heap_timer.cpp src/timer/heap_timer.h src/buffer/buffer.cpp src/buffer/buffer.h)
 
 target_link_libraries(WebServerCpp11 mysqlclient)
+target_link_libraries(WebServerCpp11 Threads::Threads)
