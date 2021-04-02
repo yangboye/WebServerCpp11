@@ -1,10 +1,4 @@
 // =============================================================================
-// Created by yangb on 2021/4/1.
+// Created by yangb on 2021/4/2.
 // =============================================================================
 
-#include <iostream>
-
-int main(int argc, char** argv) {
-  std::cout << "Hello world" << std::endl;
-  return 0;
-}

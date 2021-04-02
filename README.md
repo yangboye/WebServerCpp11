@@ -1,5 +1,9 @@
 # Webserver
 
+## 0. 磨刀不误砍柴工
+### 0.0 Google Test
+参考：[GoogleTestDemo](https://github.com/yangboye/GoogleTestDemo)
+
 ## 1. 定时器
 
 ### 1.0 补充
@@ -82,6 +86,7 @@ $$ writable = buffer.size() - write_{pos} \tag{3}$$
 ### 2.1 问题
 
 - 为什么non-bolcking网络编程中应用层buffer是必须的?
+    TODO
 
 - 为什么`Buffer`中要用两个`ssize_t`类型的成员函数（`read_pos_`和`write_pos_`）来标位置，而不用迭代器？
 
