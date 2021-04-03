@@ -2,9 +2,16 @@
 
 ## 0. 磨刀不误砍柴工
 ### 0.0 Google Test
+
 参考：[GoogleTestDemo](https://github.com/yangboye/GoogleTestDemo)
 
+
+
 ## 1. 定时器
+
+> 本节代码对应`src/timer`。
+
+
 
 ### 1.0 补充
 
@@ -69,7 +76,11 @@
 
 
 
-## 2. buffer
+## 2. 缓冲区
+
+> 本节相关代码对应`src/buffer`。
+
+
 
 ### 2.0 补充
 
@@ -138,3 +149,48 @@ using ssize_t = long int;
 
   `c_str()`会在数据的末尾添加`\0`结束符，多数用于使用字符串的场合；`data()`不会添加`\0`结束符。
 
+
+
+## 3. 线程池
+
+> 本节代码对应`src/pool`。
+
+
+
+### 3.1 问题
+
+- 析构函数为什么设置为私有(private)？
+
+
+
+## 4. 日志
+
+> 本节代码对应`src/log`。
+
+
+
+### 4.0 
+
+
+
+### 4.1 同步队列
+
+> 对应代码`src/log/block_queue.h`
+
+`BlockQueue<T>`使用了**生产者-消费者**模式。竞态资源为`deq_`。
+
+
+
+### 4.2 日志类
+
+> 对应代码`src/log/log.h`和`src/log/log.cpp`。
+
+`Log`类使用了**单例模式**。判断是否同步/异步日志：当`init()`中的`maxQueueSize`为0时，同步日志；>0时异步日志。
+
+
+
+### 4.3 问题
+
+- 在头文件(`.h`)中声明为`const char*`的变量，在`.cpp`文件中何时赋值？
+
+  比如`Log`类中的实例成员变量`path_`和`suffix_`。

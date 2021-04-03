@@ -16,9 +16,9 @@ include_directories(${gtest_SOURCE_DIR}/include ${gmock_SOURCE_DIR}/include)
 
 # 要测试的文件
 set(SRC_ROOT ../src)
-set(SRC_FILE ${SRC_ROOT}/buffer/buffer.cpp ${SRC_ROOT}/buffer/buffer.h)
+set(SRC_FILE ${SRC_ROOT}/buffer/buffer.cpp ${SRC_ROOT}/buffer/buffer.h ${SRC_ROOT}/log/block_queue.h)
 # 测试文件
-set(TEST_FILE buffer_unittest.cpp)
+set(TEST_FILE buffer_unittest.cpp block_queue_unittest.cpp)
 
 add_executable(${PROJECT_NAME} main.cpp ${SRC_FILE} ${TEST_FILE})
 target_link_libraries(${PROJECT_NAME} gtest_main gtest gmock)

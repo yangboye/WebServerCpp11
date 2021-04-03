@@ -3,14 +3,7 @@
 // =============================================================================
 
 #include "gtest/gtest.h"
-
-int Add(int x, int y) {
-  return x+y;
-}
-
-TEST(AddCase, test1) {
-  EXPECT_EQ(Add(1, 2), 3);
-}
+#include <thread>
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
