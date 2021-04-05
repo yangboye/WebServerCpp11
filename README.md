@@ -169,7 +169,106 @@ using ssize_t = long int;
 
 
 
-### 4.0 
+### 4.0 补充
+
+#### 4.0.0 C/C++时间函数
+
+常用的是获取当前时间，用法如下：
+
+```c++
+time_t timer = time(nullptr);
+struct tm* sys_time = localtime(&timer);
+// tm结构体如下
+// struct tm
+// {
+//    int tm_sec;  /*秒，正常范围0-59， 但允许至61*/
+//    int tm_min;  /*分钟，0-59*/
+//    int tm_hour; /*小时， 0-23*/
+//    int tm_mday; /*日，即一个月中的第几天，1-31*/
+//    int tm_mon;  /*月， 从一月算起，0-11*/  1+p->tm_mon;
+//    int tm_year;  /*年， 从1900至今已经多少年*/  1900＋ p->tm_year;
+//    int tm_wday; /*星期，一周中的第几天， 从星期日算起，0-6*/
+//    int tm_yday; /*从今年1月1日到目前的天数，范围0-365*/
+//   int tm_isdst; /*日光节约时间的旗标*/
+//};
+```
+
+参考：[c++ 时间类型详解 time_t](https://www.runoob.com/w3cnote/cpp-time_t.html)
+
+获取更精确的时间使用`int gettimeofday(struct timeval *tv, struct timezone *tz);`，用法如下：
+
+```c++
+struct timeval now = {0, 0};
+gettimeofday(&now, nullptr);
+time_t t_sec = now.tv_sec;
+struct tm* sys_time = localtime(&t_sec);
+```
+
+
+
+#### 4.0.1 `va_list`及相关函数
+
+- `int snprintf ( char * s, size_t n, const char * format, ... );`
+
+  将格式化的字符串存储在`s`中，且长度不大于`n-1`，大于`n-1`的部分将被丢弃（但该部分也会计算到返回结果中）。返回值要特别注意：如果`返回值∈[0, n)`时（注意n没有被取到），字符串完全写入；如果`返回值>=n`，部分写入；如果`返回值<0`，编码错误。
+
+  ```c++
+  char buff[N] = {0};
+  snprintf(buff, sizeof(buff), "your format", data...)
+  ```
+
+  
+
+- `int sprintf ( char * str, const char * format, ... );`
+
+  和上面的类似，但是该函数不太安全（如果格式化的字符串比`str`长的话程序会crash），因此，推荐使用`snprintf()`;
+
+- `int vsnprintf (char * s, size_t n, const char * format, va_list arg );`
+
+  常用用法：
+
+  ```c++
+  #include <stdio.h>
+  #include <stdarg.h> // va_list va_start va_end
+  
+  void Print(const char* format, ...) {
+      char buff[256];
+      va_list args;
+      va_start(args, format);
+      vsnprintf(buffer, sizeof(buff), format, args);
+      va_end(args);
+  }
+  ```
+
+  
+
+
+
+#### 4.0.2 文件操作
+
+
+
+#### 4.0.3 `lock_guard`和`unique_lock`
+
+- `lock_guard`: 
+
+  - 创建即加锁，作用域结束自动析构并解锁，无需手工解锁；
+  - 不能中途解锁，必须等作用域结束才解锁；
+  - 不能复制。
+
+- `unique_lock`:
+
+  - 创建时可以不锁定（通过指定第二个参数为`std::defer_lock`），而在需要时再锁定；
+  - 可以随时加锁解锁；
+  - 作用域规则同`lock_guard`，析构时自动释放锁；
+  - 不可复制，可移动；
+  - 条件变量需要该类的锁作为参数（此时必须使用`unique_lock`）。
+
+  > 需要使用锁的时候，首先考虑`lock_guard`。
+
+参考: [c++11中的lock_guard和unique_lock使用浅析](https://blog.csdn.net/guotianqing/article/details/104002449)
+
+
 
 
 
@@ -194,3 +293,20 @@ using ssize_t = long int;
 - 在头文件(`.h`)中声明为`const char*`的变量，在`.cpp`文件中何时赋值？
 
   比如`Log`类中的实例成员变量`path_`和`suffix_`。
+
+
+
+## 5. Http请求和响应处理
+
+> 对应代码`src/http`
+
+
+
+### 5.0 补充
+
+#### 5.0.0 Http
+
+
+
+#### 5.0.1 MySQL数据库操作
+

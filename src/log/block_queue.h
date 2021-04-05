@@ -12,7 +12,6 @@
 #include <cassert>
 
 /// @brief 生产者-消费者模式
-/// @tparam T
 template <typename T>
 class BlockQueue {
  public:
