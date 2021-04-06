@@ -270,6 +270,69 @@ struct tm* sys_time = localtime(&t_sec);
 
 
 
+#### 4.0.4 `define`时为什么要使用do{}while(0)?
+
+在`src/log/log.h`中，定义`LOG_DEBUG`的代码如下：
+
+```c++
+#define LOG_DEBUG(format, ...) do{LOG_BASE(0, format, ##__VA_ARGS__)} while(0);
+```
+
+与下面的有什么区别呢？
+
+```c++
+#define LOG_DEBUG(format, ...) LOG_BASE(0, format, ##__VA_ARGS__);
+```
+
+用do{}while(0)的用处参考：[C语言中宏定义（#define）时do{}while(0)的价值](https://www.cnblogs.com/fengc5/p/5083134.html)
+
+
+
+#### 4.0.5 `#`、`##`、`__VA_ARGS__`和`##__VA_ARGS__`的作用
+
+- `#` 用来把参数转换成字符串:
+
+  ```c++
+  #define SQUARE(x) do{printf("The square of `%s` is %d", #x, ((x)*(x)));}while(0);
+  
+  int x = 10;
+  SQUARE(x);	// 输出: The square of `x` is 100
+  SQUARE(10);	// 输出: The square of `10` is 100
+  ```
+
+- `##`将前后两部分粘合起来：
+
+  ```c++
+  #define XNAME(n) x##n
+  
+  int x2 = 12;
+  std::cout << XNAME(2) << std::endl;	// 输出：12
+  ```
+
+- `__VA_ARGS__`可变参数宏:
+
+  ```c++
+  #define PRINT(...) do{printf(__VA_ARGS__);}while(0);
+  int i = 1, j = 2;
+  PRINT("i=%d,j=%d\n", i, j)	// 输出：i=1,j=2
+      
+  #define PRINT2(format, ...) do{printf(format, __VA_ARGS__);}while(0);
+  PRINT2("i=%d,j=%d\n", i, j) // 输出：i=1,j=2
+  PRINT2("AAAA\n")	// 编译失败打印，因为扩展出来只有一个参数，至少要两个及以上参数(但我在vs2019中没有报错。。。)
+  ```
+
+- `##__VA_ARGS__`的作用在于，当可变参数的个数为0时，这里的##起到把前面多余的","（看`PRINT2`）去掉的作用,否则会编译出错：
+
+  ```c++
+  // 修改上面的PRINT2
+  #define PRINT3(format, ...) do{printf(format, ##__VA_ARGS__);}while(0);
+  PRINT3("AAAA\n")
+  ```
+
+  上面的形式为常用形式。
+
+  参考：[#、##、__VA_ARGS__和##__VA_ARGS__的作用](https://blog.csdn.net/q2519008/article/details/80934815)
+
 
 
 ### 4.1 同步队列

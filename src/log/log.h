@@ -18,13 +18,13 @@ class Log {
 
   ~Log();
 
-  void Init(int level=1, const char* path = "./log", const char* suffix = ".log", int max_queue_capacity = 1024);
+  void Init(int level = 1, const char* path = "./log", const char* suffix = ".log", int max_queue_capacity = 1024);
   void Write(int level, const char* format, ...);
   void Flush();
 
   int GetLevel() const;
   void SetLevel(int level);
-  inline bool IsOpen() const {return is_open_;}
+  inline bool IsOpen() const { return is_open_; }
 
  private:
   Log();
@@ -52,7 +52,21 @@ class Log {
   std::unique_ptr<BlockQueue<std::string>> dque_;
   std::unique_ptr<std::thread> write_thread_;
   mutable std::mutex mtx_;
-
 };
+
+// 只记录比level_等级高的log
+#define LOG_BASE(level, format, ...) \
+  do {                               \
+    Log* log = Log::Instance();      \
+    if(log->IsOpen() && log->GetLevel <= level) { \
+      log->Write(level, format, ##__VA_ARGS__);   \
+      log->Flush();\
+    } \
+  }while(0);
+
+#define LOG_DEBUG(format, ...) do {LOG_BASE(0, format, ##__VA_ARGS__)} while(0);
+#define LOG_INFO(format, ...) do {LOG_BASE(1, format, ##__VA_ARGS__)} while(0);
+#define LOG_WARN(format, ...) do {LOG_BASE(2, format, ##__VA_ARGS__)} while(0);
+#define LOG_ERROR(format, ...) do {LOG_BASE(3, format, ##__VA_ARGS__)} while(0);
 
 #endif //WEBSERVERCPP11_SRC_LOG_LOG_H_
