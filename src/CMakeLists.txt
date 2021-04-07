@@ -16,7 +16,7 @@ set(SRC_TIMER timer/heap_timer.cpp timer/heap_timer.h)
 set(SRC_BUFFER buffer/buffer.cpp buffer/buffer.h)
 set(SRC_POOL pool/thread_pool.h pool/sql_conn_pool.cpp pool/sql_conn_pool.h pool/sql_conn_raii.h)
 set(SRC_LOG log/block_queue.h log/log.cpp log/log.h)
-set(SRC_HTTP http/http_request.cpp http/http_request.h)
+set(SRC_HTTP http/http_request.cpp http/http_request.h http/http_response.cpp http/http_response.h http/http_conn.cpp http/http_conn.h)
 add_executable(${PROJECT_NAME} main.cpp ${SRC_TIMER} ${SRC_BUFFER} ${SRC_POOL} ${SRC_LOG} ${SRC_HTTP})
 
 target_link_libraries(${PROJECT_NAME} mysqlclient)

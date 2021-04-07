@@ -167,8 +167,6 @@ using ssize_t = long int;
 
 > 本节代码对应`src/log`。
 
-
-
 ### 4.0 补充
 
 #### 4.0.0 C/C++时间函数
@@ -204,8 +202,6 @@ time_t t_sec = now.tv_sec;
 struct tm* sys_time = localtime(&t_sec);
 ```
 
-
-
 #### 4.0.1 `va_list`及相关函数
 
 - `int snprintf ( char * s, size_t n, const char * format, ... );`
@@ -240,9 +236,6 @@ struct tm* sys_time = localtime(&t_sec);
   }
   ```
 
-  
-
-
 
 #### 4.0.2 文件操作
 
@@ -268,8 +261,6 @@ struct tm* sys_time = localtime(&t_sec);
 
 参考: [c++11中的lock_guard和unique_lock使用浅析](https://blog.csdn.net/guotianqing/article/details/104002449)
 
-
-
 #### 4.0.4 `define`时为什么要使用do{}while(0)?
 
 在`src/log/log.h`中，定义`LOG_DEBUG`的代码如下：
@@ -285,8 +276,6 @@ struct tm* sys_time = localtime(&t_sec);
 ```
 
 用do{}while(0)的用处参考：[C语言中宏定义（#define）时do{}while(0)的价值](https://www.cnblogs.com/fengc5/p/5083134.html)
-
-
 
 #### 4.0.5 `#`、`##`、`__VA_ARGS__`和`##__VA_ARGS__`的作用
 
@@ -369,7 +358,70 @@ struct tm* sys_time = localtime(&t_sec);
 
 #### 5.0.0 Http
 
-
+在代码中只处理`GET`和`POST`方法。参考：[最新版Web服务器项目详解 - 04 http连接处理（上）](https://mp.weixin.qq.com/s/BfnNl-3jc_x5WPrWEJGdzQ)
 
 #### 5.0.1 MySQL数据库操作
 
+
+
+#### 5.0.2 UrlEncode
+
+在POST方法中，URL中的"Content-Type"为"application/x-www-form-urlencoded"时，需要解码（对应`http_request.cpp`中的函数`ParsePost_`和`ParseFromUrlencoded_`）。
+
+编解码规则参考：[URLEncode](https://blog.csdn.net/m0_38060977/article/details/102753938)
+
+
+
+#### 5.0.3 相关的系统调用函数
+
+- `mmap`和`munmap`函数
+
+  该两个函数需要`#include <sys/mman.h>`, API如下：
+
+  ```c++
+  void* mmap(void* start,size_t length,int prot,int flags,int fd,off_t offset);
+  int munmap(void* start,size_t length);
+  ```
+
+  用于将一个文件或其他对象映射到内存，提高文件的访问速度。
+
+  参考：[mmap和munmap函数详解](https://blog.csdn.net/qq_21792169/article/details/51068888)
+
+- `stat`函数
+
+  需要`#include <sys/stat.h>`，API如下：
+
+  ```c++
+  //获取文件属性，存储在statbuf中
+  int stat(const char *pathname, struct stat *statbuf);
+  
+  // stat结构部分成员
+  struct stat 
+  {
+     ...
+     mode_t    st_mode;        /* 文件类型和权限 */
+     off_t     st_size;        /* 文件大小，字节数*/
+  };
+  ```
+
+  用于取得指定文件的属性，并将文件属性存储在结构体stat中。执行成功返回0，失败返回-1，错误代码保存在errno。
+
+  参考：[[linux 中 stat 函数的用途和使用方法](https://www.cnblogs.com/sylar5/p/6491033.html)](https://www.cnblogs.com/sylar5/p/6491033.html)
+
+
+
+### 5.1 HTTP请求解析
+
+> 对应代码`src/http/http_request.h`
+
+请求解析的核心函数是`HttpRequest::Parse`，通过状态机的方式来一步步从 请求行 -> 请求头部 -> 空行 -> 请求数据，每个部分的处理都是一行一行进行的。
+
+
+
+### 5.3 问题
+
+- `HttpConn::Write`中对`iov_`数组的操作？
+
+
+
+- HttpConn中，`is_ET`的作用是什么?何处给其赋值？do{}while(is_ET);的作用？`kSrcDir`何处赋值？

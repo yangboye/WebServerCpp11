@@ -16,7 +16,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gmock_SOURCE_DIR}/include)
 
 # 要测试的文件
 set(SRC_ROOT ../src)
-set(SRC_FILE ${SRC_ROOT}/buffer/buffer.cpp ${SRC_ROOT}/buffer/buffer.h ${SRC_ROOT}/log/block_queue.h)
+set(SRC_FILE ${SRC_ROOT}/buffer/buffer.cpp ${SRC_ROOT}/buffer/buffer.h ${SRC_ROOT}/log/block_queue.h ${SRC_ROOT}/log/log.cpp ${SRC_ROOT}/log/log.h)
 # 测试文件
 set(TEST_FILE buffer_unittest.cpp block_queue_unittest.cpp)
 

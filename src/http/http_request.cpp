@@ -2,17 +2,16 @@
 // Created by yangb on 2021/4/5.
 // =============================================================================
 
+#include "http_request.h"
 #include <algorithm>
 #include <regex>
-#include "../log/log.h"
-#include "http_request.h"
 
-const std::unordered_set<std::string> HttpRequest::kDefaultHtml{
+const std::unordered_set<std::string> HttpRequest::kDefaultHtml{  // NOLINT
     "/index", "/register", "/login",
     "/welcome", "/video", "/picture",
 };
 
-const std::unordered_map<std::string, int> HttpRequest::kDefaultHtmlTag{
+const std::unordered_map<std::string, int> HttpRequest::kDefaultHtmlTag{  // NOLINT
     {"/register.html", 0},
     {"/login.html", 1},
 };
@@ -57,7 +56,7 @@ bool HttpRequest::Parse(Buffer& buff) {
     }
     buff.RetrieveUntil(line_end + 2); // 2: \r\n的长度
   }// while
-//  LOG_DEBUG("[%s], [%s], [%s]", method_.c_str(), path_.c_str(), version_.c_str());
+  LOG_DEBUG("[%s], [%s], [%s]", method_.c_str(), path_.c_str(), version_.c_str());
   return true;
 }
 
@@ -88,7 +87,7 @@ bool HttpRequest::ParseRequestLine_(const std::string& line) {
   }
   std::ostringstream ostr;
   ostr << "File: " << __FILE__ << "\tFunction: " << __FUNCTION__ << std::endl;
-//  LOG_DEBUG("In %s, requestLine error", ostr.str().c_str());
+  LOG_DEBUG("In %s, requestLine error", ostr.str().c_str());
   return false;
 }
 
@@ -106,7 +105,7 @@ void HttpRequest::ParseBody_(const std::string& line) {
   body_ = line;
   ParsePost_();
   state_ = FINISH;
-//  LOG_DEBUG("Body: %s, len: %d", line.c_str(), line.size());
+  LOG_DEBUG("Body: %s, len: %d", line.c_str(), line.size());
 }
 
 void HttpRequest::ParsePost_() {
@@ -119,7 +118,7 @@ void HttpRequest::ParsePost_() {
     ParseFromUrlencoded_();
     if (kDefaultHtmlTag.count(path_)) {
       int tag = kDefaultHtmlTag.find(path_)->second;
-//      LOG_DEBUG("Tag: %d", tag);
+      LOG_DEBUG("Tag: %d", tag);
       if (tag == 0 || tag == 1) {
         bool is_login = (tag == 1);
         if (UserVerify_(post_["username"], post_["password"], is_login)) {
@@ -139,7 +138,7 @@ void HttpRequest::ParseFromUrlencoded_() {
 
   std::string key;
   std::string value;
-  int num = 0;
+  int num;
   int n = body_.size();
   int i = 0;
   int j = 0;
@@ -164,7 +163,7 @@ void HttpRequest::ParseFromUrlencoded_() {
         value = body_.substr(j, i - j);
         j = i + 1;
         post_[key] = value;
-//        LOG_DEBUG("%s = %s", key.c_str(), value.c_str());
+        LOG_DEBUG("%s = %s", key.c_str(), value.c_str());
         break;
       default:
         break;
@@ -177,6 +176,70 @@ void HttpRequest::ParseFromUrlencoded_() {
   }
 }
 
+bool HttpRequest::UserVerify_(const std::string& name, const std::string& passwd, bool is_login) {
+  if (name.empty() || passwd.empty()) {
+    return false;
+  }
+  LOG_INFO("Verify name: %s passwd: %s", name.c_str(), passwd.c_str());
+  MYSQL* sql;
+  SqlConnRAII(&sql, SqlConnPool::Instance());
+  assert(sql);
 
+  bool flag = false;
+  char order[256] = {0};
+  MYSQL_RES* res = nullptr;
 
+  if (!is_login) { // 注册行为
+    flag = true;
+  }
+  // 查询用户和密码
+  snprintf(order, sizeof(order), "SELECT username, password FROM user WHERE username='%s' LIMIT 1", name.c_str());
+  LOG_DEBUG("%s", order);
 
+  if (mysql_query(sql, order)) {
+    mysql_free_result(res);
+    return false;
+  }
+
+  res = mysql_store_result(sql);
+
+  while (MYSQL_ROW row = mysql_fetch_row(res)) {
+    LOG_DEBUG("MYSQL ROW: %s %s", row[0], row[1]);
+    std::string password(row[1]);
+
+    if (is_login) {    // 登陆行为
+      if (passwd == password) {
+        flag = true;
+      } else {
+        flag = false;
+        LOG_DEBUG("passwd error!");
+      }
+    } else {  // 注册行为, 用户名已被使用过
+      flag = false;
+      LOG_DEBUG("user used!");
+    }
+  } // while
+
+  mysql_free_result(res);
+
+  // 注册行为 且用户名未被使用过
+  if (!is_login && flag) {
+    LOG_DEBUG("Register!");
+    bzero(order, sizeof(order));
+    snprintf(order,
+             sizeof(order),
+             "INSERT INTO user(username, password) VALUES('%s', '%s')",
+             name.c_str(),
+             passwd.c_str());
+    LOG_DEBUG("%s", order);
+    if (mysql_query(sql, order)) {
+      LOG_DEBUG("Insert error!");
+      flag = false;
+    }
+    flag = true;
+  } // if
+  SqlConnPool::Instance()->FreeConn(sql);
+
+  LOG_DEBUG("UserVerify_ success!!");
+  return flag;
+}

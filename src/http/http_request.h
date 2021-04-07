@@ -8,7 +8,10 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <cassert>
+#include <mysql/mysql.h>
 #include "../buffer/buffer.h"
+#include "../pool/sql_conn_raii.h"
+#include "../log/log.h"
 
 ///
 /// Reference: https://mp.weixin.qq.com/s/BfnNl-3jc_x5WPrWEJGdzQ
@@ -75,6 +78,7 @@ class HttpRequest {
   /// @brief version of HTTP, e.g. 1.1
   inline std::string GetVersion() const { return version_; }
 
+  /// @brief get POST request data value
   inline std::string GetPost(const char* key) const {
     assert(key != "");
     if (post_.count(key) == 1) {
@@ -102,6 +106,7 @@ class HttpRequest {
     return ch;
   }
 
+  /// @brief 用户身份验证
   static bool UserVerify_(const std::string& name, const std::string& passwd, bool is_login);
 
   /// @brief 解析 请求行
@@ -119,7 +124,7 @@ class HttpRequest {
   /// @brief 解析路径 在路径名(path_)后加上.html
   void ParsePath_();
 
-  /// @brief 解析Content-Type:application/x-www-form-urlencoded
+  /// @brief 解析Content-Type:application/x-www-form-urlencoded编码的数据
   void ParseFromUrlencoded_();
 
  private:
@@ -127,13 +132,13 @@ class HttpRequest {
   std::string method_{};  // GET or POST
   std::string path_{};    // file path
   std::string version_{}; // HTTP version e.g. 1.1
-  std::string body_{};
+  std::string body_{};    // request data body
 
   std::unordered_map<std::string, std::string> header_{}; // 请求头部中的值
-  std::unordered_map<std::string, std::string> post_{};
+  std::unordered_map<std::string, std::string> post_{};   // POST方法中请求数据部分的值
 
   static const std::unordered_set<std::string> kDefaultHtml;  // 默认网页
-  static const std::unordered_map<std::string, int> kDefaultHtmlTag;
+  static const std::unordered_map<std::string, int> kDefaultHtmlTag;  // key: 网页.html   value: int
 };
 
 #endif //WEBSERVERCPP11_SRC_HTTP_HTTP_REQUEST_H_
