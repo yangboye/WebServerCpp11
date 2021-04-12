@@ -2,11 +2,12 @@
 // Created by yangb on 2021/4/1.
 // =============================================================================
 
-#include <iostream>
-
+#include "server/web_server.h"
 
 int main(int argc, char** argv) {
-  std::cout << "Hello world!" << std::endl;
-  std::cout <<"File: " <<  __FILE__ << "\tLine: " << __LINE__ << "\tFunction: " << __FUNCTION__  << std::endl;
+  WebServer server(12345, 3, 60000, false,
+                   3306, "damon", "123456", "webserver",
+                   12, 6, true, 1, 1024);
+  server.Start();
   return 0;
 }

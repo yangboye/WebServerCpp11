@@ -10,7 +10,7 @@
 /// @brief: HTTP Content-Type
 /// Reference: https://tool.oschina.net/commons
 ///
-const std::unordered_map<std::string, std::string> kSuffixType_ = { // NOLINT
+const std::unordered_map<std::string, std::string> HttpResponse::kSuffixType_ = { // NOLINT
     {".html", "text/html"},
     {".xml", "text/xml"},
     {".xhtml", "application/xhtml+xml"},
@@ -36,14 +36,14 @@ const std::unordered_map<std::string, std::string> kSuffixType_ = { // NOLINT
 /// @brief Http信息响应
 /// Reference: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%93%8D%E5%BA%94
 ///
-const std::unordered_map<int, std::string> kCodeStatus_ = { // NOLINT
+const std::unordered_map<int, std::string> HttpResponse::kCodeStatus_ = { // NOLINT
     {200, "OK"},
     {400, "Bad Request"},
     {403, "Forbidden"},
     {404, "Not Found"},
 };
 
-const std::unordered_map<int, std::string> kCodePath_ = { // NOLINT
+const std::unordered_map<int, std::string> HttpResponse::kCodePath_ = { // NOLINT
     {400, "/400.html"},
     {403, "/403.html"},
     {404, "/404.html"},

@@ -70,6 +70,7 @@ void SqlConnPool::Init(const char* host,
   }
   max_conn_ = conn_size;
   sem_init(&sem_id_, 0, max_conn_);
+
 }
 
 void SqlConnPool::ClosePool() {
