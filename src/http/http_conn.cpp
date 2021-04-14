@@ -17,7 +17,7 @@ void HttpConn::Init(int sock_fd, const sockaddr_in& addr) {
   write_buff_.RetrieveAll();  // 清空
   read_buff_.RetrieveAll();   // 清空
   is_close_ = false;
-  LOG_INFO("Client[%d](%s:%d) in, user count: %d\n", GetFd(), GetIP(), GetPort(), static_cast<int>(user_count));
+  LOG_INFO("Client[%d](%s:%d) in, user count: %d", GetFd(), GetIP(), GetPort(), static_cast<int>(user_count));
 }
 
 ssize_t HttpConn::Write(int* save_errno) {

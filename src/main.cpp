@@ -7,7 +7,7 @@
 int main(int argc, char** argv) {
   WebServer server(12345, 3, 60000, false,
                    3306, "damon", "123456", "webserver",
-                   12, 6, true, 1, 1024);
+                   12, 6, true, 0, 1024);
   server.Start();
   return 0;
 }

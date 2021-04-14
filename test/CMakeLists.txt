@@ -20,5 +20,5 @@ set(SRC_FILE ${SRC_ROOT}/buffer/buffer.cpp ${SRC_ROOT}/buffer/buffer.h ${SRC_ROO
 # 测试文件
 set(TEST_FILE buffer_unittest.cpp block_queue_unittest.cpp)
 
-add_executable(${PROJECT_NAME} main.cpp ${TEST_FILE})
+add_executable(${PROJECT_NAME} main.cpp ${SRC_FILE} ${TEST_FILE})
 target_link_libraries(${PROJECT_NAME} gtest_main gtest gmock)

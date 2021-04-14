@@ -30,6 +30,9 @@ class HttpConn {
     ssize_t len = -1;
     do {
       len = read_buff_.ReadFd(fd_, save_errno);
+      if(len <= 0) { // 没有数据可读, 退出
+        break;
+      }
     } while (is_ET);
     return len;
   }
@@ -40,7 +43,7 @@ class HttpConn {
       is_close_ = true;
       --user_count;
       close(fd_);
-      LOG_INFO("Client[%d](%s:%d) quit, user count: %d\n", GetFd(), GetIP(), GetPort(), static_cast<int>(user_count));
+      LOG_INFO("Client[%d](%s:%d) quit, user count: %d", GetFd(), GetIP(), GetPort(), static_cast<int>(user_count));
     }
   }
 

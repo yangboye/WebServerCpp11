@@ -91,6 +91,7 @@ class WebServer {
     thread_pool_->AddTask(std::bind(&WebServer::OnRead_, this, client));
   }
 
+  /// @brief 发送错误信息给FD
   inline void SendError_(int fd, const char* info) {
     assert(fd > 0);
     int ret = send(fd, info, strlen(info), 0);
@@ -121,6 +122,7 @@ class WebServer {
     int read_errno = 0;
     ret = client->Read(&read_errno);
     if (ret <= 0 && read_errno != EAGAIN) {
+      LOG_ERROR("Read error!");
       CloseConn_(client);
       return;
     }
@@ -162,7 +164,7 @@ class WebServer {
       timer_->Add(fd, timeout_, std::bind(&WebServer::CloseConn_, this, &users_[fd]));
     }
 
-    epoller_->AddFd(fd, EPOLLIN || conn_event_);
+    epoller_->AddFd(fd, EPOLLIN | conn_event_);
     SetFdNonBlock_(fd);
     LOG_INFO("Client[%d] in!", users_[fd].GetFd());
   }

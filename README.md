@@ -426,7 +426,7 @@ struct tm* sys_time = localtime(&t_sec);
 
 - HttpConn中，`is_ET`的作用是什么?何处给其赋值？do{}while(is_ET);的作用？`kSrcDir`何处赋值？
 
-
+`is_ET`和`kSrcDir`都在`web_server`中赋值(`is_ET`的赋值见`WebServer::InitEventMode_`, `kSrcDir`的赋值见`WebServer::WebServer`)。
 
 
 
@@ -444,6 +444,10 @@ struct tm* sys_time = localtime(&t_sec);
 
 - `std::bind`和lambda表达式有什么区别？比如在`AddClient_`中，timer_的Add函数中使用lambda。
 
-
+`timer_->Add(fd, timeout_, std::bind(&WebServer::CloseConn_, this, &users_[fd]));`的解释？
 
 - `OnWrite_`函数中，为什么`EAGAIN`时要重新设置`EPOLLOUT`?
+
+
+
+- 优雅关闭？端口复用？

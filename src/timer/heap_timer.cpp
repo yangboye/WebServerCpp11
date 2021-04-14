@@ -19,7 +19,8 @@ void HeapTimer::Add(int id, int timeout, const TimeoutCallBack& cb) {
   if (ref_.count(id) == 0) { // 新的节点, 先插入堆尾, 然后再调整
     i = heap_.size();
     ref_[id] = i;
-    heap_.emplace_back(TimerNode(id, Clock::now() + static_cast<Ms>(timeout), cb));
+    heap_.push_back({id, Clock ::now() + static_cast<Ms>(timeout), cb});
+//    heap_.emplace_back(TimerNode(id, Clock::now() + static_cast<Ms>(timeout), cb));
     SiftUp_(i);
   } else {  // 已有节点, 更新后调整堆
     i = ref_[id];
@@ -49,7 +50,7 @@ void HeapTimer::Tick() {
     return;
   }
   while (!heap_.empty()) {
-    auto node = heap_.front();
+    TimerNode node = heap_.front();
     if (std::chrono::duration_cast<Ms>(node.expires - Clock::now()).count() > 0) {
       break;
     }

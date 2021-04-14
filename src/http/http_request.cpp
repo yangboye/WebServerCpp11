@@ -193,7 +193,7 @@ bool HttpRequest::UserVerify_(const std::string& name, const std::string& passwd
     flag = true;
   }
   // 查询用户和密码
-  snprintf(order, sizeof(order), "SELECT username, password FROM user WHERE username='%s' LIMIT 1", name.c_str());
+  snprintf(order, sizeof(order), "SELECT username, passwd FROM user WHERE username='%s' LIMIT 1", name.c_str());
   LOG_DEBUG("%s", order);
 
   if (mysql_query(sql, order)) {
@@ -228,7 +228,7 @@ bool HttpRequest::UserVerify_(const std::string& name, const std::string& passwd
     bzero(order, sizeof(order));
     snprintf(order,
              sizeof(order),
-             "INSERT INTO user(username, password) VALUES('%s', '%s')",
+             "INSERT INTO user(username, passwd) VALUES('%s', '%s')",
              name.c_str(),
              passwd.c_str());
     LOG_DEBUG("%s", order);
@@ -240,6 +240,6 @@ bool HttpRequest::UserVerify_(const std::string& name, const std::string& passwd
   } // if
   SqlConnPool::Instance()->FreeConn(sql);
 
-  LOG_DEBUG("UserVerify_ success!!");
+  LOG_DEBUG("UserVerify success!!");
   return flag;
 }

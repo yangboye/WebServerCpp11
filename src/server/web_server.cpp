@@ -32,6 +32,7 @@ WebServer::WebServer(int port,
   SqlConnPool::Instance()->Init("localhost", sql_port, sql_user, sql_passwd, db_name, conn_pool_num);
 
   InitEventMode_(trig_mode);
+
   if (!InitSocket_()) {
     is_close_ = true;
   }
@@ -51,38 +52,39 @@ WebServer::WebServer(int port,
       LOG_INFO("SqlConnPool num: %d\t\tThreadPool num: %d", conn_pool_num, thread_num);
     }
   }
+
 }
 
 void WebServer::Start() {
   int time_ms = -1; // epoll wait timeout == -1 无事件阻塞
   if (!is_close_) {
     LOG_INFO("============== Server start ==============");
-    while (!is_close_) {
-      if (timeout_ > 0) {
-        time_ms = timer_->GetNextTick();
-      }
-      int event_cnt = epoller_->Wait(time_ms);
-      for (int i = 0; i < event_cnt; ++i) { // 处理事件
-        int fd = epoller_->GetEventFd(i);
-        uint32_t events = epoller_->GetEvents(i);
+  }
+  while (!is_close_) {
+    if (timeout_ > 0) {
+      time_ms = timer_->GetNextTick();
+    }
+    int event_cnt = epoller_->Wait(time_ms);
+    for (int i = 0; i < event_cnt; ++i) { // 处理事件
+      int fd = epoller_->GetEventFd(i);
+      uint32_t events = epoller_->GetEvents(i);
 
-        if (fd == listen_fd_) {  // 监听事件
-          DealListen_();
-        } else if (events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) { // 关闭连接
-          assert(users_.count(fd) > 0);
-          CloseConn_(&users_[fd]);
-        } else if (events & EPOLLIN) {  // 读
-          assert(users_.count(fd) > 0);
-          DealRead_(&users_[fd]);
-        } else if (events & EPOLLOUT) { // 写
-          assert(users_.count(fd) > 0);
-          DealWrite_(&users_[fd]);
-        } else {
-          LOG_ERROR("Unexpected event!");
-        } // if
-      } // for
-    } // while
-  } // if
+      if (fd == listen_fd_) {  // 监听事件
+        DealListen_();
+      } else if (events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR)) { // 关闭连接
+        assert(users_.count(fd) > 0);
+        CloseConn_(&users_[fd]);
+      } else if (events & EPOLLIN) {  // 读
+        assert(users_.count(fd) > 0);
+        DealRead_(&users_[fd]);
+      } else if (events & EPOLLOUT) { // 写
+        assert(users_.count(fd) > 0);
+        DealWrite_(&users_[fd]);
+      } else {
+        LOG_ERROR("Unexpected event!");
+      } // if
+    } // for
+  } // while
 }
 
 bool WebServer::InitSocket_() {
@@ -119,14 +121,14 @@ bool WebServer::InitSocket_() {
 
   int opt_val = 1;
   // 端口复用，只有最后一个套接字会正常接收数据
-  ret = setsockopt(listen_fd_, SOL_SOCKET, SO_REUSEADDR, static_cast<const void*>(&opt_val), sizeof(int));
+  ret = setsockopt(listen_fd_, SOL_SOCKET, SO_REUSEADDR, (const void*)(&opt_val), sizeof(int));
   if (ret == -1) {
     LOG_ERROR("Set socket setsockopt error!");
     close(listen_fd_);
     return false;
   }
 
-  ret = bind(listen_fd_, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr));
+  ret = bind(listen_fd_, (struct sockaddr*)(&addr), sizeof(addr));
   if (ret < 0) {
     LOG_ERROR("Bind port:%d error!", port_);
     close(listen_fd_);
@@ -176,13 +178,13 @@ void WebServer::InitEventMode_(int trig_mode) {
 }
 
 void WebServer::DealListen_() {
-  struct sockaddr_in addr;
+  struct sockaddr_in addr{};
   socklen_t len = sizeof(addr);
   do {
     int fd = accept(listen_fd_, reinterpret_cast<struct sockaddr*>(&addr), &len);
-    if(fd <= 0) {
+    if (fd <= 0) {
       return;
-    } else if(HttpConn::user_count >= kMaxFd) {
+    } else if (HttpConn::user_count >= kMaxFd) {
       SendError_(fd, "Server busy!");
       LOG_WARN("Clients are full!");
       return;
